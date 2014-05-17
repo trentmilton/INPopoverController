@@ -32,7 +32,7 @@
 	[self _setInitialPropertyValues];
 }
 
-#pragma mark - 
+#pragma mark -
 #pragma mark - Memory Management
 
 - (void)dealloc
@@ -63,9 +63,10 @@
 	INPopoverArrowDirection calculatedDirection = [self _arrowDirectionWithPreferredArrowDirection:direction]; // Calculate the best arrow direction
 	[self _setArrowDirection:calculatedDirection]; // Change the arrow direction of the popover
 	NSRect windowFrame = [self popoverFrameWithSize:self.contentSize andArrowDirection:calculatedDirection]; // Calculate the window frame based on the arrow direction
+    
 	[_popoverWindow setFrame:windowFrame display:YES]; // Se the frame of the window
 	[[_popoverWindow animationForKey:@"alphaValue"] setDelegate:self];
-
+    
 	// Show the popover
 	[self _callDelegateMethod:@selector(popoverWillShow:)]; // Call the delegate
 	if (self.animates && self.animationType != INPopoverAnimationTypeFadeOut) {
@@ -77,7 +78,7 @@
 		[_popoverWindow makeKeyAndOrderFront:nil]; // Show the popover
 		[self _callDelegateMethod:@selector(popoverDidShow:)]; // Call the delegate
 	}
-
+    
 	NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
 	if (anchors) {  // If the anchors option is enabled, register for frame change notifications
 		[nc addObserver:self selector:@selector(_positionViewFrameChanged:) name:NSViewFrameDidChangeNotification object:self.positionView];
@@ -134,8 +135,15 @@
 	contentRect.size = contentSize;
 	NSRect windowFrame = [_popoverWindow frameRectForContentRect:contentRect];
 	if (direction == INPopoverArrowDirectionUp) {
-		CGFloat xOrigin = NSMidX(_screenRect) - floor(windowFrame.size.width / 2.0);
-		CGFloat yOrigin = NSMinY(_screenRect) - windowFrame.size.height;
+        // EKF: This is an update to make sure the frame doesn't scroll over to the right.
+        NSRect screenFrame = [[[_positionView window] screen] frame];
+        CGFloat right = screenFrame.size.width - NSMaxX(_screenRect);
+        CGFloat overlapRight = MAX(windowFrame.size.width / 2 - right, 0);
+        
+		CGFloat xOrigin = NSMidX(_screenRect) - floor(windowFrame.size.width / 2.0) - overlapRight;
+        //		CGFloat yOrigin = NSMinY(_screenRect) - windowFrame.size.height;
+        // EKF: moved the height up to be flush with the menu bar.
+        CGFloat yOrigin = NSMinY(_screenRect) - windowFrame.size.height;
 		windowFrame.origin = NSMakePoint(xOrigin, yOrigin);
 	} else if (direction == INPopoverArrowDirectionDown) {
 		CGFloat xOrigin = NSMidX(_screenRect) - floor(windowFrame.size.width / 2.0);
@@ -169,7 +177,7 @@
 
 - (void)applicationDidBecomeActive:(NSNotification *)notification
 {
-	// when the user clicks in the parent window for activating the app, the parent window becomes key which prevents 
+	// when the user clicks in the parent window for activating the app, the parent window becomes key which prevents
 	if ([_popoverWindow isVisible])
 		[self performSelector:@selector(checkPopoverKeyWindowStatus) withObject:nil afterDelay:0];
 }
@@ -296,7 +304,7 @@
 	// Create an empty popover window
 	_popoverWindow = [[INPopoverWindow alloc] initWithContentRect:NSZeroRect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:NO];
 	_popoverWindow.popoverController = self;
-
+    
 	// set defaults like iCal popover
 	self.color = [NSColor colorWithCalibratedWhite:0.94 alpha:0.92];
 	self.borderColor = [NSColor colorWithCalibratedWhite:1.0 alpha:0.92];
@@ -306,7 +314,7 @@
 	self.closesWhenApplicationBecomesInactive = NO;
 	self.animates = YES;
 	self.animationType = INPopoverAnimationTypePop;
-
+    
 	// create animation to get callback - delegate is set when opening popover to avoid memory cycles
 	CAAnimation *animation = [CABasicAnimation animation];
 	[_popoverWindow setAnimations:[NSDictionary dictionaryWithObject:animation forKey:@"alphaValue"]];
@@ -390,7 +398,7 @@
 - (void)_closePopoverAndResetVariables
 {
 	NSWindow *positionWindow = [self.positionView window];
-	[_popoverWindow orderOut:nil]; // Close the window 
+	[_popoverWindow orderOut:nil]; // Close the window
 	[self _callDelegateMethod:@selector(popoverDidClose:)]; // Call the delegate to inform that the popover has closed
 	[positionWindow removeChildWindow:_popoverWindow]; // Remove it as a child window
 	[positionWindow makeKeyAndOrderFront:nil];
@@ -400,7 +408,7 @@
 	_positionView = nil;
 	_screenRect = NSZeroRect;
 	_viewRect = NSZeroRect;
-
+    
 	// When using ARC and no animation, there is a "message sent to deallocated instance" crash if setDelegate: is not performed at the end of the event.
 	[[_popoverWindow animationForKey:@"alphaValue"] performSelector:@selector(setDelegate:) withObject:nil afterDelay:0];
 }

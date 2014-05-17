@@ -53,7 +53,7 @@
 @property (nonatomic, assign) BOOL animates;
 
 /* If `animates` is `YES`, this is the animation type to use when showing/closing the popover.
-   Default value: `INPopoverAnimationTypePop` **/
+ Default value: `INPopoverAnimationTypePop` **/
 @property (nonatomic, assign) INPopoverAnimationType animationType;
 
 /** The content view controller from which content is displayed in the popover **/
@@ -87,12 +87,12 @@
 
 - (void)presentPopoverFromRect:(NSRect)rect inView:(NSView *)positionView preferredArrowDirection:(INPopoverArrowDirection)direction anchorsToPositionView:(BOOL)anchors;
 
-/** 
+/**
  Recalculates the best arrow direction for the current window position and resets the arrow direction. The change will not be animated. **/
 - (void)recalculateAndResetArrowDirection;
 
 /**
- Closes the popover unless NO is returned for the -popoverShouldClose: delegate method 
+ Closes the popover unless NO is returned for the -popoverShouldClose: delegate method
  @param sender the object that sent this message
  */
 - (IBAction)closePopover:(id)sender;

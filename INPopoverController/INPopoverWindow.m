@@ -149,7 +149,7 @@
 	[self makeKeyAndOrderFront:self];
 	[_zoomWindow close];
 	_zoomWindow = nil;
-
+    
 	// call the animation delegate of the "real" window
 	CAAnimation *windowAnimation = [self animationForKey:@"alphaValue"];
 	[[windowAnimation delegate] animationDidStop:anim finished:flag];
@@ -171,7 +171,7 @@
 	BOOL isOneShot = [self isOneShot];
 	if (isOneShot)
 		[self setOneShot:NO];
-
+    
 	if ([self windowNumber] <= 0) {
 		// force creation of window device by putting it on-screen. We make it transparent to minimize the chance of visible flicker
 		CGFloat alpha = [self alphaValue];
@@ -180,7 +180,7 @@
 		[self orderOut:self];
 		[self setAlphaValue:alpha];
 	}
-
+    
 	// get window content as image
 	NSRect frame = [self frame];
 	NSImage *image = [[NSImage alloc] initWithSize:frame.size];
@@ -189,7 +189,7 @@
 	NSBitmapImageRep *imageRep = [view bitmapImageRepForCachingDisplayInRect:view.bounds];
 	[view cacheDisplayInRect:view.bounds toBitmapImageRep:imageRep];
 	[image addRepresentation:imageRep];
-
+    
 	// create zoom window
 	NSWindow *zoomWindow = [[NSWindow alloc] initWithContentRect:rect styleMask:NSBorderlessWindowMask backing:NSBackingStoreBuffered defer:NO];
 	[zoomWindow setBackgroundColor:[NSColor clearColor]];
@@ -198,18 +198,18 @@
 	[zoomWindow setOpaque:NO];
 	[zoomWindow setReleasedWhenClosed:NO];
 	[zoomWindow useOptimizedDrawing:YES];
-
+    
 	NSImageView *imageView = [[NSImageView alloc] initWithFrame:[zoomWindow contentRectForFrameRect:frame]];
 	[imageView setImage:image];
 	[imageView setImageFrameStyle:NSImageFrameNone];
 	[imageView setImageScaling:NSScaleToFit];
 	[imageView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
-
+    
 	[zoomWindow setContentView:imageView];
-
+    
 	// reset one shot flag
 	[self setOneShot:isOneShot];
-
+    
 	return zoomWindow;
 }
 

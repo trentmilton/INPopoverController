@@ -24,7 +24,7 @@
 	if (((NSUInteger) self.borderWidth % 2) == 1) { // Remove draw glitch on odd border width
 		bounds = NSInsetRect(bounds, 0.5, 0.5);
 	}
-
+    
 	NSBezierPath *path = [self _popoverBezierPathWithRect:bounds];
 	if (self.color) {
 		[self.color set];
@@ -35,16 +35,16 @@
 		[self.borderColor set];
 		[path stroke];
 	}
-
+    
 	const CGFloat arrowWidth = self.arrowSize.width;
 	const CGFloat arrowHeight = self.arrowSize.height;
 	const CGFloat radius = self.cornerRadius;
-
+    
 	if (self.topHighlightColor) {
 		[self.topHighlightColor set];
 		NSRect bounds = NSInsetRect([self bounds], arrowHeight, arrowHeight);
 		NSRect lineRect = NSMakeRect(floor(NSMinX(bounds) + (radius / 2.0)), NSMaxY(bounds) - self.borderWidth - 1, NSWidth(bounds) - radius, 1.0);
-
+        
 		if (self.arrowDirection == INPopoverArrowDirectionUp) {
 			CGFloat width = floor((lineRect.size.width / 2.0) - (arrowWidth / 2.0));
 			NSRectFill(NSMakeRect(lineRect.origin.x, lineRect.origin.y, width, lineRect.size.height));
@@ -69,10 +69,10 @@
 	const CGFloat maxX = NSMaxX(drawingRect);
 	const CGFloat minY = NSMinY(drawingRect);
 	const CGFloat maxY = NSMaxY(drawingRect);
-
+    
 	NSBezierPath *path = [NSBezierPath bezierPath];
 	[path setLineJoinStyle:NSRoundLineJoinStyle];
-
+    
 	// Bottom left corner
 	[path appendBezierPathWithArcWithCenter:NSMakePoint(minX, minY) radius:radius startAngle:180.0 endAngle:270.0];
 	if (self.arrowDirection == INPopoverArrowDirectionDown) {
@@ -96,16 +96,20 @@
 	// Top right corner
 	[path appendBezierPathWithArcWithCenter:NSMakePoint(maxX, maxY) radius:radius startAngle:0.0 endAngle:90.0];
 	if (self.arrowDirection == INPopoverArrowDirectionUp) {
+        // EKF: The below points were removed as the arrow is a pain in the ass to get working. If it is put back in then the logic from the INPopoverViewController.m line 137 needs to be used. Somehow work out how to get the position the same as it does and then move the below points[0] to the correct position if the position of the screen is too far to the right so that it doesn't appear off screen.
 		CGFloat midX = NSMidX(drawingRect);
 		NSPoint points[3];
+        // EKF: removed the arrow for now while it's flush with the menu bar
 		points[0] = NSMakePoint(floor(midX + (arrowWidth / 2.0)), maxY + radius);
-		points[1] = NSMakePoint(floor(midX), points[0].y + arrowHeight);
-		points[2] = NSMakePoint(floor(midX - (arrowWidth / 2.0)), points[0].y);
-		[path appendBezierPathWithPoints:points count:3];
+        //		points[1] = NSMakePoint(floor(midX), points[0].y + arrowHeight);
+        //		points[2] = NSMakePoint(floor(midX - (arrowWidth / 2.0)), points[0].y);
+        //		[path appendBezierPathWithPoints:points count:3];
+        [path appendBezierPathWithPoints:points count:1];
 	}
 	// Top left corner
 	[path appendBezierPathWithArcWithCenter:NSMakePoint(minX, maxY) radius:radius startAngle:90.0 endAngle:180.0];
 	if (self.arrowDirection == INPopoverArrowDirectionLeft) {
+        
 		CGFloat midY = NSMidY(drawingRect);
 		NSPoint points[3];
 		points[0] = NSMakePoint(minX - radius, floor(midY + (arrowWidth / 2.0)));
@@ -114,7 +118,7 @@
 		[path appendBezierPathWithPoints:points count:3];
 	}
 	[path closePath];
-
+    
 	return path;
 }
 
